@@ -1,0 +1,26 @@
+{
+  "name": "tmux-trainer",
+  "version": "0.1.0",
+  "description": "An interactive, level-based game to build real tmux muscle memory. Plain HTML/CSS/JS, hostable on GitHub Pages.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "npx --yes serve@14 -l 5173 .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:all": "vitest run && playwright test"
+  },
+  "keywords": [
+    "tmux",
+    "game",
+    "learning",
+    "keyboard-shortcuts",
+    "terminal"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "vitest": "^3.2.6"
+  }
+}

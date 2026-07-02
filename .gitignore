@@ -1,0 +1,19 @@
+# Dependencies (dev/test only - never shipped to Pages)
+node_modules/
+
+# Test output
+playwright-report/
+test-results/
+coverage/
+
+# Build artifact used only by the deploy workflow
+_site/
+
+# OS / editor cruft
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# DaD plugin scratch
+.claude-dad/

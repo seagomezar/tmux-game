@@ -1,0 +1,433 @@
+/* tmux Trainer - terminal / retro aesthetic */
+
+:root {
+  --bg: #0b0f0a;
+  --bg-panel: #0f150d;
+  --fg: #c9d1b8;
+  --fg-dim: #6f7d5e;
+  --green: #7fdc55;
+  --green-bright: #a6ff6e;
+  --amber: #ffb454;
+  --red: #ff5f5f;
+  --accent: #58e0c0;
+  --border: #2a3a20;
+  --mono: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 16px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+/* Subtle CRT scanline vibe without hurting readability. */
+.crt {
+  width: 100%;
+  max-width: 860px;
+  position: relative;
+}
+.crt::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 9999;
+}
+
+h2 {
+  color: var(--green-bright);
+  margin: 0 0 12px;
+}
+b,
+strong {
+  color: var(--green-bright);
+}
+code {
+  color: var(--amber);
+  background: rgba(255, 180, 84, 0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ---------- HUD ---------- */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-panel);
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+.hud-level {
+  color: var(--accent);
+}
+.hud-score b {
+  color: var(--green-bright);
+}
+.combo {
+  color: var(--amber);
+  margin-left: 8px;
+  animation: pop 0.3s ease;
+}
+.hud-lives {
+  letter-spacing: 3px;
+}
+.heart.full {
+  color: var(--red);
+}
+.heart.empty {
+  color: var(--fg-dim);
+}
+
+/* ---------- Screens ---------- */
+.screen {
+  border: 1px solid var(--border);
+  background: var(--bg-panel);
+  border-radius: 8px;
+  padding: 28px;
+  animation: fade-in 0.25s ease;
+}
+
+.logo {
+  color: var(--green);
+  font-size: 12px;
+  line-height: 1.1;
+  margin: 0 0 8px;
+  text-shadow: 0 0 8px rgba(127, 220, 85, 0.4);
+  overflow-x: auto;
+}
+.logo.small {
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: var(--amber);
+}
+.tagline {
+  color: var(--fg-dim);
+  margin-top: 0;
+}
+.notice {
+  color: var(--fg-dim);
+  font-size: 13px;
+  border-left: 2px solid var(--border);
+  padding-left: 10px;
+}
+
+/* ---------- Start screen ---------- */
+.os-select {
+  margin: 20px 0;
+}
+.os-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.os-btn {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all 0.15s ease;
+}
+.os-btn:hover {
+  border-color: var(--green);
+}
+.os-btn.selected {
+  border-color: var(--green);
+  color: var(--green-bright);
+  box-shadow: 0 0 10px rgba(127, 220, 85, 0.25);
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary,
+.btn-secondary {
+  font-family: var(--mono);
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 12px 22px;
+  font-size: 15px;
+  margin-top: 18px;
+  transition: all 0.15s ease;
+}
+.btn-primary {
+  background: var(--green);
+  color: #08120a;
+  border: none;
+  font-weight: bold;
+}
+.btn-primary:hover {
+  background: var(--green-bright);
+  box-shadow: 0 0 14px rgba(127, 220, 85, 0.4);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  border-color: var(--green);
+}
+
+/* ---------- Concept ---------- */
+.concept-body {
+  margin-bottom: 16px;
+}
+.diagram {
+  background: #070a06;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  color: var(--accent);
+  font-size: 13px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ---------- Drill ---------- */
+.challenge {
+  margin-top: 18px;
+}
+.challenge-step {
+  color: var(--fg-dim);
+  font-size: 13px;
+}
+.challenge-prompt {
+  font-size: 20px;
+  color: var(--green-bright);
+  margin: 6px 0 14px;
+}
+.capture-hint {
+  color: var(--fg-dim);
+  font-size: 14px;
+}
+.capture-hint::after {
+  content: "▋";
+  animation: blink 1s step-end infinite;
+  color: var(--green);
+}
+
+.timer-bar {
+  height: 6px;
+  background: #070a06;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.timer-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, var(--red), var(--amber), var(--green));
+  transition: width 0.05s linear;
+}
+
+.feedback {
+  min-height: 24px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+.feedback.correct {
+  color: var(--green-bright);
+}
+.feedback.wrong {
+  color: var(--red);
+}
+
+.fallback {
+  margin: 10px 0;
+}
+.fallback label {
+  display: block;
+  color: var(--fg-dim);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.fallback-input {
+  background: #070a06;
+  border: 1px solid var(--border);
+  color: var(--green-bright);
+  font-family: var(--mono);
+  font-size: 15px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  width: 240px;
+}
+.fallback-input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+/* ---------- Mock tmux screen ---------- */
+.tmux-mount {
+  margin-bottom: 18px;
+}
+.tmux {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #060806;
+}
+.tmux.pulse {
+  animation: pulse 0.35s ease;
+}
+.tmux-body {
+  display: grid;
+  gap: 3px;
+  padding: 3px;
+  height: 200px;
+  background: var(--border);
+  position: relative;
+}
+.tmux-body.layout-single {
+  grid-template-columns: 1fr;
+}
+.tmux-body.layout-lr {
+  grid-template-columns: 1fr 1fr;
+}
+.tmux-body.layout-tb {
+  grid-template-columns: 1fr;
+  grid-auto-rows: 1fr;
+}
+.tmux-body.layout-grid {
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+}
+.tmux-body.layout-zoomed {
+  grid-template-columns: 1fr;
+}
+.tmux-body.layout-zoomed .pane:not(.active) {
+  display: none;
+}
+.pane {
+  background: #0a0f08;
+  color: var(--fg-dim);
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 2px;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+.pane.active {
+  background: #0d1409;
+  color: var(--green);
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+.pane .copy {
+  color: var(--amber);
+}
+.tmux-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: var(--amber);
+  background: rgba(0, 0, 0, 0.55);
+  letter-spacing: 4px;
+  animation: fade-in 0.15s ease;
+}
+.tmux-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--green);
+  color: #08120a;
+  font-size: 12px;
+  padding: 3px 8px;
+  font-weight: bold;
+}
+.status-windows {
+  flex: 1;
+  text-align: center;
+}
+
+/* ---------- End screens ---------- */
+.big-score {
+  font-size: 24px;
+  color: var(--green-bright);
+}
+.danger {
+  color: var(--red);
+  text-shadow: 0 0 12px rgba(255, 95, 95, 0.4);
+}
+.victory .logo.small {
+  text-align: center;
+}
+
+/* ---------- Animations ---------- */
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(127, 220, 85, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(127, 220, 85, 0);
+  }
+}
+
+@media (max-width: 560px) {
+  body {
+    font-size: 15px;
+  }
+  .logo {
+    font-size: 9px;
+  }
+  .challenge-prompt {
+    font-size: 17px;
+  }
+}
