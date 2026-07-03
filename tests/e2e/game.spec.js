@@ -23,6 +23,17 @@ test('start screen shows and lets you pick an OS', async ({ page }) => {
   await expect(page.locator('.os-btn[data-os="mac"]')).toHaveClass(/selected/);
 });
 
+test('start screen lets you pick a language', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.screen.start')).toBeVisible();
+  await expect(page.locator('.tagline')).toContainText('Master tmux by muscle memory.');
+
+  // Switch to Spanish
+  await page.locator('.lang-btn[data-lang="es"]').click();
+  await expect(page.locator('.lang-btn[data-lang="es"]')).toHaveClass(/selected/);
+  await expect(page.locator('.tagline')).toContainText('Domina tmux por memoria muscular.');
+});
+
 test('concept card precedes the drill and explains the level', async ({ page }) => {
   await startGame(page);
   await expect(page.locator('.screen.concept h2')).toContainText('Level 1');

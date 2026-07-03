@@ -8,6 +8,7 @@ import { LEVELS } from './levels.js';
 import {
   createGame,
   setOs,
+  setLang,
   startGame,
   beginDrill,
   recordCorrect,
@@ -17,6 +18,7 @@ import {
   currentChallenge,
   Screen,
 } from './state.js';
+import { translate } from './translations.js';
 import {
   getKeybinding,
   getCommand,
@@ -108,7 +110,7 @@ function handleCorrect() {
   const elapsedMs = now() - challengeStart;
   const challenge = currentChallenge(game);
   if (tmux) tmux.applyEffect(challenge.effect);
-  flashFeedback('correct', '✓ nailed it');
+  flashFeedback('correct', translate(game.lang, 'feedbackCorrect'));
   // Small delay so the player sees the animation before moving on.
   setTimeout(() => advance(recordCorrect(game, { elapsedMs, limitMs: challenge.limitMs })), 450);
 }
@@ -116,7 +118,10 @@ function handleCorrect() {
 function handleMistake(reason) {
   if (resolved) return;
   resolved = true;
-  flashFeedback('wrong', reason === 'timeout' ? '✗ too slow' : '✗ wrong keys');
+  const msg = reason === 'timeout'
+    ? translate(game.lang, 'feedbackSlow')
+    : translate(game.lang, 'feedbackWrong');
+  flashFeedback('wrong', msg);
   setTimeout(() => {
     const after = recordMistake(game);
     // On a non-fatal mistake we retry the same challenge; renderDrill re-inits.
@@ -254,6 +259,10 @@ function route() {
 const handlers = {
   onSelectOs: (os) => {
     game = setOs(game, os);
+    route();
+  },
+  onSelectLang: (lang) => {
+    game = setLang(game, lang);
     route();
   },
   onStart: () => {

@@ -24,6 +24,7 @@ export function createGame(levels) {
   return {
     levels,
     os: 'linux', // chosen on the start screen; only affects terminal-track challenges
+    lang: 'en', // default language
     screen: Screen.START,
     levelIndex: 0,
     challengeIndex: 0,
@@ -43,6 +44,11 @@ export function currentChallenge(game) {
 /** Set the player's OS (start screen). */
 export function setOs(game, os) {
   return { ...game, os };
+}
+
+/** Set the player's language (start screen). */
+export function setLang(game, lang) {
+  return { ...game, lang };
 }
 
 /** Begin a run: go to the first level's concept card. */

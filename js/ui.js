@@ -6,6 +6,7 @@
 
 import { Screen } from './state.js';
 import { STARTING_LIVES } from './scoring.js';
+import { translate, t } from './translations.js';
 
 /** Minimal markdown: **bold** and line breaks. Escapes HTML first. */
 function mdInline(text) {
@@ -35,13 +36,15 @@ export function renderHearts(lives) {
 export function renderHud(game) {
   const level = game.levels[game.levelIndex];
   const { score, streak, lives } = game.run;
-  const comboLabel = streak >= 2 ? `<span class="combo">x${Math.min(streak, 4)} combo</span>` : '';
+  const comboText = translate(game.lang, 'comboLabel');
+  const comboLabel = streak >= 2 ? `<span class="combo">x${Math.min(streak, 4)} ${comboText}</span>` : '';
+  const levelLabel = translate(game.lang, 'levelLabel');
+  const scoreLabel = translate(game.lang, 'scoreLabel');
+  const title = level ? t(level.title, game.lang) : '';
   return `
     <div class="hud">
-      <span class="hud-level">LVL ${game.levelIndex + 1}/${game.levels.length} · ${escapeHtml(
-    level ? level.title : ''
-  )}</span>
-      <span class="hud-score">score <b>${score}</b> ${comboLabel}</span>
+      <span class="hud-level">${levelLabel} ${game.levelIndex + 1}/${game.levels.length} · ${escapeHtml(title)}</span>
+      <span class="hud-score">${scoreLabel} <b>${score}</b> ${comboLabel}</span>
       <span class="hud-lives">${renderHearts(lives)}</span>
     </div>`;
 }
@@ -52,7 +55,7 @@ export const UI = {
     this.root = root;
   },
 
-  start(game, { onStart, onSelectOs }) {
+  start(game, { onStart, onSelectOs, onSelectLang }) {
     this.root.innerHTML = `
       <section class="screen start">
         <pre class="logo">
@@ -63,9 +66,9 @@ export const UI = {
  \\__|_| |_| |_|\\__,_/_/\\_\\  \\__, |\\__,_|_| |_| |_|\\___|
                             |___/
         </pre>
-        <p class="tagline">Master tmux by muscle memory. 11 levels. 3 lives. No mercy.</p>
+        <p class="tagline">${escapeHtml(translate(game.lang, 'tagline'))}</p>
         <div class="os-select">
-          <span>Your OS (only affects terminal shortcuts):</span>
+          <span>${escapeHtml(translate(game.lang, 'osSelect'))}</span>
           <div class="os-buttons">
             ${['mac', 'linux', 'windows']
               .map(
@@ -75,25 +78,41 @@ export const UI = {
               .join('')}
           </div>
         </div>
-        <p class="notice">Tip: tmux keys are the same on every OS - the prefix is always <b>Ctrl-b</b>. You'll press the real keys; a few browser-reserved combos fall back to typing.</p>
-        <button class="btn-primary start-btn">Start ▸</button>
+        <div class="lang-select">
+          <span>${escapeHtml(translate(game.lang, 'langSelect'))}</span>
+          <div class="lang-buttons">
+            ${['en', 'es']
+              .map(
+                (lang) =>
+                  `<button class="lang-btn ${game.lang === lang ? 'selected' : ''}" data-lang="${lang}">${lang === 'en' ? 'English' : 'Español'}</button>`
+              )
+              .join('')}
+          </div>
+        </div>
+        <p class="notice">${translate(game.lang, 'tip')}</p>
+        <button class="btn-primary start-btn">${escapeHtml(translate(game.lang, 'startBtn'))}</button>
       </section>`;
 
     this.root.querySelectorAll('.os-btn').forEach((b) =>
       b.addEventListener('click', () => onSelectOs(b.dataset.os))
+    );
+    this.root.querySelectorAll('.lang-btn').forEach((b) =>
+      b.addEventListener('click', () => onSelectLang(b.dataset.lang))
     );
     this.root.querySelector('.start-btn').addEventListener('click', onStart);
   },
 
   concept(game, { onBeginDrill }) {
     const level = game.levels[game.levelIndex];
+    const levelLabel = translate(game.lang, 'levelConceptHeader');
+    const startDrillBtn = translate(game.lang, 'startDrillBtn');
     this.root.innerHTML = `
       ${renderHud(game)}
       <section class="screen concept">
-        <h2>Level ${game.levelIndex + 1}: ${escapeHtml(level.title)}</h2>
-        <div class="concept-body">${mdInline(level.concept)}</div>
-        <pre class="diagram">${escapeHtml(level.diagram)}</pre>
-        <button class="btn-primary begin-btn">Start drill ▸</button>
+        <h2>${levelLabel} ${game.levelIndex + 1}: ${escapeHtml(t(level.title, game.lang))}</h2>
+        <div class="concept-body">${mdInline(t(level.concept, game.lang))}</div>
+        <pre class="diagram">${escapeHtml(t(level.diagram, game.lang))}</pre>
+        <button class="btn-primary begin-btn">${escapeHtml(startDrillBtn)}</button>
       </section>`;
     this.root.querySelector('.begin-btn').addEventListener('click', onBeginDrill);
   },
@@ -106,25 +125,27 @@ export const UI = {
     const level = game.levels[game.levelIndex];
     const stepNum = game.challengeIndex + 1;
     const stepTotal = level.challenges.length;
+    const challengeLabel = translate(game.lang, 'challengeLabel');
+    const fallbackText = translate(game.lang, 'fallbackLabel', { expected: expectedDisplay });
+    const submitText = translate(game.lang, 'submit');
+    const captureHint = translate(game.lang, 'captureHint');
 
     this.root.innerHTML = `
       ${renderHud(game)}
       <section class="screen drill">
         <div class="tmux-mount"></div>
         <div class="challenge">
-          <div class="challenge-step">Challenge ${stepNum}/${stepTotal}</div>
-          <div class="challenge-prompt">${escapeHtml(challenge.prompt)}</div>
+          <div class="challenge-step">${challengeLabel} ${stepNum}/${stepTotal}</div>
+          <div class="challenge-prompt">${escapeHtml(t(challenge.prompt, game.lang))}</div>
           <div class="timer-bar"><div class="timer-fill"></div></div>
           ${
             fallback
               ? `<div class="fallback">
-                   <label>This combo is browser-reserved - type it instead (e.g. <code>${escapeHtml(
-                     expectedDisplay
-                   )}</code>):</label>
+                   <label>${fallbackText}</label>
                    <input class="fallback-input" type="text" autocomplete="off" spellcheck="false" autofocus>
-                   <button class="fallback-submit btn-secondary">Submit</button>
+                   <button class="fallback-submit btn-secondary">${escapeHtml(submitText)}</button>
                  </div>`
-              : `<div class="capture-hint">Press the keys now…</div>`
+              : `<div class="capture-hint">${escapeHtml(captureHint)}</div>`
           }
           <div class="feedback" aria-live="polite"></div>
         </div>
@@ -142,37 +163,54 @@ export const UI = {
   levelComplete(game, { onNext }) {
     const level = game.levels[game.levelIndex];
     const isLast = game.levelIndex >= game.levels.length - 1;
+    const clearedText = translate(game.lang, 'levelCleared');
+    const scoreText = translate(game.lang, 'score');
+    const livesRemainingText = translate(game.lang, 'livesRemaining');
+    const nextBtnText = isLast ? translate(game.lang, 'faceBossBtn') : translate(game.lang, 'nextLevelBtn');
+
     this.root.innerHTML = `
       ${renderHud(game)}
       <section class="screen level-complete">
-        <h2>✓ ${escapeHtml(level.title)} cleared</h2>
-        <p class="big-score">Score: ${game.run.score}</p>
-        <p>${escapeHtml(renderHearts(game.run.lives).replace(/<[^>]+>/g, ''))} lives remaining</p>
-        <button class="btn-primary next-btn">${isLast ? 'Face the boss ▸' : 'Next level ▸'}</button>
+        <h2>✓ ${escapeHtml(t(level.title, game.lang))} ${escapeHtml(clearedText)}</h2>
+        <p class="big-score">${escapeHtml(scoreText)}: ${game.run.score}</p>
+        <p>${escapeHtml(renderHearts(game.run.lives).replace(/<[^>]+>/g, ''))} ${escapeHtml(livesRemainingText)}</p>
+        <button class="btn-primary next-btn">${escapeHtml(nextBtnText)}</button>
       </section>`;
     this.root.querySelector('.next-btn').addEventListener('click', onNext);
   },
 
   gameOver(game, { onRestart }) {
+    const gameOverTitle = translate(game.lang, 'gameOver');
+    const gameOverText = translate(game.lang, 'gameOverText', { level: game.levelIndex + 1 });
+    const gameOverFinalScore = translate(game.lang, 'gameOverFinalScore', { score: game.run.score });
+    const gameOverNotice = translate(game.lang, 'gameOverNotice');
+    const restartBtn = translate(game.lang, 'restartBtn');
+
     this.root.innerHTML = `
       <section class="screen game-over">
-        <h2 class="danger">GAME OVER</h2>
-        <p>You ran out of lives on level ${game.levelIndex + 1}.</p>
-        <p class="big-score">Final score: ${game.run.score}</p>
-        <p class="notice">No save points - tmux mastery starts over from level 1.</p>
-        <button class="btn-primary restart-btn">Restart from Level 1 ▸</button>
+        <h2 class="danger">${escapeHtml(gameOverTitle)}</h2>
+        <p>${escapeHtml(gameOverText)}</p>
+        <p class="big-score">${escapeHtml(gameOverFinalScore)}</p>
+        <p class="notice">${escapeHtml(gameOverNotice)}</p>
+        <button class="btn-primary restart-btn">${escapeHtml(restartBtn)}</button>
       </section>`;
     this.root.querySelector('.restart-btn').addEventListener('click', onRestart);
   },
 
   victory(game, { onRestart }) {
+    const victoryTitle = translate(game.lang, 'victoryTitle');
+    const victoryText = translate(game.lang, 'victoryText', { levels: game.levels.length });
+    const victoryFinalScore = translate(game.lang, 'victoryFinalScore', { score: game.run.score });
+    const victoryNotice = translate(game.lang, 'victoryNotice');
+    const playAgainBtn = translate(game.lang, 'playAgainBtn');
+
     this.root.innerHTML = `
       <section class="screen victory">
-        <pre class="logo small">★  T M U X   E X P E R T  ★</pre>
-        <h2>You cleared all ${game.levels.length} levels.</h2>
-        <p class="big-score">Final score: ${game.run.score}</p>
-        <p>You now know sessions, windows, panes, copy mode, layouts, config and the boss-round reflexes. Go run <code>tmux</code> for real.</p>
-        <button class="btn-primary restart-btn">Play again ▸</button>
+        <pre class="logo small">${escapeHtml(victoryTitle)}</pre>
+        <h2>${escapeHtml(victoryText)}</h2>
+        <p class="big-score">${escapeHtml(victoryFinalScore)}</p>
+        <p>${victoryNotice}</p>
+        <button class="btn-primary restart-btn">${escapeHtml(playAgainBtn)}</button>
       </section>`;
     this.root.querySelector('.restart-btn').addEventListener('click', onRestart);
   },

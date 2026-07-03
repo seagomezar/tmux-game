@@ -10,6 +10,7 @@ import {
   currentLevel,
   currentChallenge,
   setOs,
+  setLang,
   Screen,
 } from '../../js/state.js';
 
@@ -103,5 +104,10 @@ describe('game flow', () => {
   it('setOs only changes the os field', () => {
     const g = setOs(createGame(fakeLevels), 'mac');
     expect(g.os).toBe('mac');
+  });
+
+  it('setLang only changes the lang field', () => {
+    const g = setLang(createGame(fakeLevels), 'es');
+    expect(g.lang).toBe('es');
   });
 });

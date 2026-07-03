@@ -420,6 +420,34 @@ code {
   }
 }
 
+/* ---------- Language select ---------- */
+.lang-select {
+  margin: 20px 0;
+}
+.lang-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.lang-btn {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.lang-btn:hover {
+  border-color: var(--green);
+}
+.lang-btn.selected {
+  border-color: var(--green);
+  color: var(--green-bright);
+  box-shadow: 0 0 10px rgba(127, 220, 85, 0.25);
+}
+
 @media (max-width: 560px) {
   body {
     font-size: 15px;
